@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "h_hostfile": "plaintext",
+        "iostream": "cpp",
+        "iosfwd": "cpp"
+    }
+}
