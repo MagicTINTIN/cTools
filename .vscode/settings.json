@@ -66,6 +66,21 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "chrono": "cpp",
+        "deque": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "__tree": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "fstream": "cpp"
     }
 }
