@@ -79,7 +79,8 @@ int main(int argc, char const *argv[])
         bool alpha = true;
         for (long unsigned int i = 0; i < cleaned.length(); i++)
         {
-            if (!isalpha(cleaned[i]))
+            // if (!isalpha(cleaned[i]))
+            if (cleaned[i] < 'a' || cleaned[i] > 'z')
             {
                 alpha = false;
                 break;
