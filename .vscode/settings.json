@@ -85,6 +85,7 @@
         "__node_handle": "cpp",
         "in.h": "c",
         "inet.h": "c",
-        "socket.h": "c"
+        "socket.h": "c",
+        "mman.h": "c"
     }
 }
