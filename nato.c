@@ -71,14 +71,17 @@ int main(int argc, char const *argv[])
         printf("%c: ", (randoms[totalGuess % GUESSES] + 'a'));
         char input[256];
         int r = scanf("%s", input);
-        if (strlen(input) == strlen(words[randoms[totalGuess % GUESSES]]) && strncmp(input, words[randoms[totalGuess % GUESSES]], min(100, r)) == 0)
+        int expectedLength = strlen(words[randoms[totalGuess % GUESSES]]) + 0*r;
+        if (strlen(input) == expectedLength && strncmp(input, words[randoms[totalGuess % GUESSES]], min(100, expectedLength)) == 0)
         {
             totalGuess++;
             correct++;
             printf("Vrai!\n");
         }
-        else
+        else {
             printf("Faux! -> %s\n", words[randoms[totalGuess % GUESSES]]);
+            correct = 0;
+        }
     }
 
     printf("GG! Streak completed\n");
