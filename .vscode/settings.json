@@ -87,7 +87,8 @@
         "inet.h": "c",
         "socket.h": "c",
         "mman.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.default.compilerPath": "/nix/store/lbk30k56awz9vz9qpid93fkjns0xwlhd-gcc-wrapper-13.3.0/bin/gcc"
 }

@@ -2,16 +2,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#define GUESSES 26
+
+int isIn(int n, int tab[], int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (tab[i] == n)
+            return 1;
+    }
+    return 0;
+}
+
+int min(int a, int b) {return a < b ? a : b;}
 
 int main(int argc, char const *argv[])
 {
     srand(time(NULL)); // Initialization, should only be called once.
-    int r = rand();    // Returns a pseudo-random integer between 0 and RAND_MAX.
+    // int r = rand();    // Returns a pseudo-random integer between 0 and RAND_MAX.
 
     int totalGuess = 0;
     int correct = 0;
 
-    char words[26][128] = {
+    char words[GUESSES][128] = {
         "alfa",
         "bravo",
         "charlie",
@@ -37,24 +50,38 @@ int main(int argc, char const *argv[])
         "whiskey",
         "xray",
         "yankee",
-        "zulu"};
+        "zulu"
+        };
 
-    while (totalGuess < 26 || correct * 100 < totalGuess * 95)
+    int randoms[GUESSES] = {0};
+    while (correct < GUESSES)
     {
-        r = rand() % 26;
-        printf("%c: ", (r + 'a'));
+        if (totalGuess % GUESSES == 0)
+        {
+            correct = 0;
+            totalGuess = 0;
+            int values = 0;
+            for (; values < GUESSES;)
+            {
+                int r = rand() % GUESSES;
+                if (!isIn(r, randoms, values))
+                    randoms[values++] = r;
+            }
+        }
+        printf("%c: ", (randoms[totalGuess % GUESSES] + 'a'));
         char input[256];
-        scanf("%s", input);
-        if (strncmp(input, words[r], 100) == 0)
+        int r = scanf("%s", input);
+        if (strlen(input) == strlen(words[randoms[totalGuess % GUESSES]]) && strncmp(input, words[randoms[totalGuess % GUESSES]], min(100, r)) == 0)
         {
             totalGuess++;
+            correct++;
             printf("Vrai!\n");
         }
         else
-        {
-            printf("Faux! -> %s\n", words[r]);
-        }
+            printf("Faux! -> %s\n", words[randoms[totalGuess % GUESSES]]);
     }
+
+    printf("GG! Streak completed\n");
 
     return 0;
 }
