@@ -9,9 +9,10 @@ const int topStringLength = 42;
 
 int chaserOffset = 0;
 
-const int MAX_TIME = 1*60;
+int lastReset = millis() / 1000;
+const int MAX_TIME = 1*60+10;
 int remainingSeconds = MAX_TIME;
-const int threshold = 50;
+const int threshold = 60;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -38,13 +39,23 @@ void chaserUpdate() {
   }
 }
 
-void timeUpdate(int seconds) {
+void timeUpdate() {
+  remainingSeconds = MAX_TIME - ((millis()/1000) - lastReset); // 
+  if (remainingSeconds < 0) remainingSeconds = 0;
+  // timeUpdate(remainingSeconds);
+  int minutes_o = remainingSeconds / 60;
+  int seconds_o = remainingSeconds % 60;
+  char timeDisplayed[] = {'0'+minutes_o / 10, '0' + minutes_o % 10, ':', '0'+ seconds_o / 10, '0'+seconds_o % 10};
+  for (int i=0;i<5;i++) {
+    lcd.setCursor(11+i,1);
+    lcd.print(timeDisplayed[i]);
+  }
 }
 
 void refresh() {
   int buttonState = digitalRead(BUTTON);
   if (buttonState == HIGH) {
-    remainingSeconds = MAX_TIME;
+    lastReset = millis() / 1000;
   }
   
   if (remainingSeconds < threshold) {
@@ -60,6 +71,7 @@ void waitWhileRefresh(int time, int precision) {
   //lcd.scrollDisplayLeft();
 
   chaserUpdate();
+  timeUpdate();
   for (int i=0; i<precision;i++) {
     delay(time/precision);
     refresh();
@@ -67,13 +79,10 @@ void waitWhileRefresh(int time, int precision) {
 }
 
 void loop() {
-  for (int i=0;i<5;i++) {
+  for (int i=0;i<2;i++) {
   digitalWrite(LED_BUILTIN, HIGH);
-  waitWhileRefresh(200,10);
+  waitWhileRefresh(250,10);
   digitalWrite(LED_BUILTIN, LOW);
-  waitWhileRefresh(200,10);
+  waitWhileRefresh(250,10);
   }
-  if (remainingSeconds > 0)
-    remainingSeconds--;
-  timeUpdate(remainingSeconds);
 }
