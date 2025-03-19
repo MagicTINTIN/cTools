@@ -90,7 +90,22 @@
         "string.h": "c",
         "stdlib.h": "c",
         "numeric": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "csignal": "cpp",
+        "any": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp",
+        "future": "cpp",
+        "semaphore": "cpp",
+        "shared_mutex": "cpp",
+        "stdfloat": "cpp",
+        "stop_token": "cpp",
+        "typeindex": "cpp"
     },
     // "C_Cpp.default.compilerPath": "/nix/store/lbk30k56awz9vz9qpid93fkjns0xwlhd-gcc-wrapper-13.3.0/bin/gcc",
     "makefile.configureOnOpen": false

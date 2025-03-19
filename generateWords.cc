@@ -109,7 +109,8 @@ std::string utf8_char_at(const std::string &str, size_t n)
     return "";
 }
 
-std::string utf8_char_at(const std::string &str, size_t n, std::string defaultVal) {
+std::string utf8_char_at(const std::string &str, size_t n, std::string defaultVal)
+{
     std::string ret = utf8_char_at(str, n);
     if (ret.empty())
         return defaultVal;
@@ -203,7 +204,14 @@ std::string WordModel::aggregateWordGen(std::string begin)
         ctxSize = sizeOfStr;
     }
     else
-        ctxSearch = begin.substr(0, sizeOfStr--);
+    {
+        int beginIndex = std::max(0, (int)sizeOfStr - (int)contextSize);
+        ctxSearch = ("");//begin.substr(beginIndex, contextSize);
+        for (size_t i = 0; i < contextSize; i++)
+        {
+            ctxSearch += utf8_char_at(begin, beginIndex+i);
+        }
+    }
     if (!maps.at(ctxSize).count(ctxSearch) || maps.at(ctxSize)[ctxSearch].empty())
         return begin + "\n";
 
@@ -280,7 +288,7 @@ int main(int argc, char const *argv[])
         for (size_t lastc = 0; lastc < length; lastc++)
         {
             std::string ctx("");
-            for (size_t i = std::max(0,(int) lastc - contextSize); i < lastc && lastc > 0; i++)
+            for (size_t i = std::max(0, (int)lastc - contextSize); i < lastc && lastc > 0; i++)
             {
                 ctx += utf8_char_at(line, i);
             }
