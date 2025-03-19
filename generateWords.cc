@@ -3,25 +3,77 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
 
 #define DEFAULT_CONTEXT 3
+class WordModel
+{
+private:
+    std::vector<size_t> lengthsFrequencies;
+    std::vector<std::unordered_map<std::string, int>> maps;
+    int contextSize;
 
-std::vector<size_t> lengthsFrequencies(20);
+public:
+    WordModel(int contextSize);
+    ~WordModel();
+    void addStr(std::string str);
+    void addLength(int length);
+};
 
-size_t utf8_length(const std::string& str) {
+WordModel::WordModel(int contextSize) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize)
+{
+}
+
+WordModel::~WordModel()
+{
+}
+
+void WordModel::addStr(std::string str)
+{
+    size_t sizeOfStr = utf8_length(str);
+    if (sizeOfStr < contextSize)
+        str = " " + str;
+    else
+        sizeOfStr--;
+    if (maps.at(0).count(str))
+        maps.at(sizeOfStr)[str]++;
+    else
+        maps.at(sizeOfStr).insert(std::make_pair(str, 1));
+}
+
+void WordModel::addLength(int length)
+{
+    for (int i = lengthsFrequencies.size(); i < length; i++)
+    {
+        lengthsFrequencies.emplace_back(0);
+    }
+    
+    lengthsFrequencies.at(length - 1)++;
+}
+
+size_t utf8_length(const std::string &str)
+{
     size_t length = 0;
-    for (auto it = str.begin(); it != str.end();) {
+    for (auto it = str.begin(); it != str.end();)
+    {
         unsigned char c = *it;
-        if ((c & 0x80) == 0x00) {
+        if ((c & 0x80) == 0x00)
+        {
             // 1-byte character
             ++it;
-        } else if ((c & 0xE0) == 0xC0) {
+        }
+        else if ((c & 0xE0) == 0xC0)
+        {
             // 2-byte character
             it += 2;
-        } else if ((c & 0xF0) == 0xE0) {
+        }
+        else if ((c & 0xF0) == 0xE0)
+        {
             // 3-byte character
             it += 3;
-        } else if ((c & 0xF8) == 0xF0) {
+        }
+        else if ((c & 0xF8) == 0xF0)
+        {
             // 4-byte character
             it += 4;
         }
@@ -64,7 +116,8 @@ int main(int argc, char const *argv[])
     }
 
     int contextSize = DEFAULT_CONTEXT;
-    if (argc == 5) {
+    if (argc == 5)
+    {
         contextSize = atoi(argv[4]);
     }
     std::ifstream infile(argv[1]);
@@ -94,7 +147,6 @@ int main(int argc, char const *argv[])
         }
         if (!alpha)
             continue;
-        
     }
     printf("Stats read.\n");
     if (maxAllowed == 0 || contextSize == 2)
