@@ -255,9 +255,13 @@ int main(int argc, char const *argv[])
     long unsigned int generatedNumber = atoi(argv[3]);
 
     unsigned int lines(0);
+    printf("Reading source file...\nLine n°0");
+    fflush(stdout);
     while (std::getline(infile, line))
     {
         lines++;
+        printf("\rLine n°%d", lines);
+        fflush(stdout);
         // printf("Str=%s : len=%ld, size=%ld, utf8=%ld | ", line.c_str(), line.length(), line.size(), utf8_length(line));
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
         // printf("len=%ld, size=%ld, utf8=%ld >>> ", line.length(), line.size(), utf8_length(line));
@@ -268,14 +272,14 @@ int main(int argc, char const *argv[])
         for (size_t lastc = 0; lastc < length; lastc++)
         {
             std::string ctx("");
-            for (size_t i = 0; i < lastc - 1; i++)
+            for (size_t i = 0; i < lastc - 1 && lastc > 0; i++)
             {
                 ctx += utf8_char_at(line, i);
             }
             model.addStr(ctx, utf8_char_at(line, lastc));
         }
     }
-    printf("Stats generated.\nStart generating words...\n");
+    printf("\rStats generated.\nStart generating words...\n");
     std::vector<std::string> foundWords(0);
     int maxTries = 0;
     for (size_t i = 0; i < generatedNumber; i++)
