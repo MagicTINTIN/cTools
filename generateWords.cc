@@ -10,13 +10,13 @@ class WordModel
 {
 private:
     std::vector<size_t> lengthsFrequencies;
-    std::vector<std::unordered_map<std::string, int>> maps;
+    std::vector<std::unordered_map<std::string, std::unordered_map<std::string, int>>> maps;
     int contextSize;
 
 public:
     WordModel(int contextSize);
     ~WordModel();
-    void addStr(std::string str);
+    void addStr(std::string str, std::string c);
     void addLength(int length);
 };
 
@@ -28,17 +28,25 @@ WordModel::~WordModel()
 {
 }
 
-void WordModel::addStr(std::string str)
+void WordModel::addStr(std::string ctx, std::string c)
 {
-    size_t sizeOfStr = utf8_length(str);
+    size_t sizeOfStr = utf8_length(ctx);
     if (sizeOfStr < contextSize)
-        str = " " + str;
+        ctx = " " + ctx;
     else
         sizeOfStr--;
-    if (maps.at(0).count(str))
-        maps.at(sizeOfStr)[str]++;
+    if (maps.at(0).count(ctx))
+    {
+        if (maps.at(sizeOfStr)[ctx].count(c))
+            maps.at(sizeOfStr)[ctx][c]++;
+        else
+            maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
+    }
     else
-        maps.at(sizeOfStr).insert(std::make_pair(str, 1));
+    {
+        maps.at(sizeOfStr).insert(std::make_pair(ctx, 1));
+        maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
+    }
 }
 
 void WordModel::addLength(int length)
@@ -47,7 +55,7 @@ void WordModel::addLength(int length)
     {
         lengthsFrequencies.emplace_back(0);
     }
-    
+
     lengthsFrequencies.at(length - 1)++;
 }
 
@@ -80,6 +88,66 @@ size_t utf8_length(const std::string &str)
         ++length;
     }
     return length;
+}
+
+std::string utf8_char_at(const std::string &str, size_t n)
+{
+    size_t current_pos = 0;
+    size_t byte_index = 0;
+
+    while (current_pos < n && byte_index < str.size())
+    {
+        unsigned char c = str[byte_index];
+        if ((c & 0x80) == 0x00)
+        {
+            // 1-byte character
+            ++byte_index;
+        }
+        else if ((c & 0xE0) == 0xC0)
+        {
+            // 2-byte character
+            byte_index += 2;
+        }
+        else if ((c & 0xF0) == 0xE0)
+        {
+            // 3-byte character
+            byte_index += 3;
+        }
+        else if ((c & 0xF8) == 0xF0)
+        {
+            // 4-byte character
+            byte_index += 4;
+        }
+        ++current_pos;
+    }
+
+    if (current_pos == n && byte_index < str.size())
+    {
+        unsigned char c = str[byte_index];
+        if ((c & 0x80) == 0x00)
+        {
+            // 1-byte character
+            return str.substr(byte_index, 1);
+        }
+        else if ((c & 0xE0) == 0xC0)
+        {
+            // 2-byte character
+            return str.substr(byte_index, 2);
+        }
+        else if ((c & 0xF0) == 0xE0)
+        {
+            // 3-byte character
+            return str.substr(byte_index, 3);
+        }
+        else if ((c & 0xF8) == 0xF0)
+        {
+            // 4-byte character
+            return str.substr(byte_index, 4);
+        }
+    }
+
+    // Return an empty string if the position is out of bounds
+    return "";
 }
 
 std::string replaceChar(std::string s, char c1, char c2)
