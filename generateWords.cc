@@ -7,66 +7,7 @@
 
 #define DEFAULT_CONTEXT 3
 #define MAX_GENERATION_TRIES 500
-class WordModel
-{
-private:
-    std::vector<size_t> lengthsFrequencies;
-    std::vector<std::map<std::string, std::map<std::string, int>>> maps;
-    int contextSize;
 
-public:
-    WordModel(int contextSize);
-    ~WordModel();
-    void addStr(std::string str, std::string c);
-    void addLength(int length);
-    std::string aggregateWordGen(std::string begin);
-};
-
-WordModel::WordModel(int contextSize) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize)
-{
-}
-
-WordModel::~WordModel()
-{
-}
-
-void WordModel::addStr(std::string ctx, std::string c)
-{
-    size_t sizeOfStr = utf8_length(ctx);
-    if (sizeOfStr < contextSize)
-        ctx = " " + ctx;
-    else
-        sizeOfStr--;
-    if (maps.at(0).count(ctx))
-    {
-        if (maps.at(sizeOfStr)[ctx].count(c))
-            maps.at(sizeOfStr)[ctx][c]++;
-        else
-            maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
-    }
-    else
-    {
-        maps.at(sizeOfStr).insert(std::make_pair(ctx, std::map<std::string, int>()));
-        maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
-    }
-}
-
-void WordModel::addLength(int length)
-{
-    for (int i = lengthsFrequencies.size(); i < length; i++)
-    {
-        lengthsFrequencies.emplace_back(0);
-    }
-
-    lengthsFrequencies.at(length - 1)++;
-}
-
-std::string WordModel::aggregateWordGen(std::string begin)
-{
-    size_t sizeOfStr = utf8_length(begin);
-
-    return begin;
-}
 
 size_t utf8_length(const std::string &str)
 {
@@ -181,6 +122,66 @@ std::string deleteChar(std::string s, char c1)
     }
     return ret;
 }
+class WordModel
+{
+private:
+    std::vector<size_t> lengthsFrequencies;
+    std::vector<std::map<std::string, std::map<std::string, int>>> maps;
+    unsigned int contextSize;
+
+public:
+    WordModel(int contextSize);
+    ~WordModel();
+    void addStr(std::string str, std::string c);
+    void addLength(int length);
+    std::string aggregateWordGen(std::string begin);
+};
+
+WordModel::WordModel(int contextSize) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize)
+{
+}
+
+WordModel::~WordModel()
+{
+}
+
+void WordModel::addStr(std::string ctx, std::string c)
+{
+    size_t sizeOfStr = utf8_length(ctx);
+    if (sizeOfStr < contextSize)
+        ctx = " " + ctx;
+    else
+        sizeOfStr--;
+    if (maps.at(0).count(ctx))
+    {
+        if (maps.at(sizeOfStr)[ctx].count(c))
+            maps.at(sizeOfStr)[ctx][c]++;
+        else
+            maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
+    }
+    else
+    {
+        maps.at(sizeOfStr).insert(std::make_pair(ctx, std::map<std::string, int>()));
+        maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
+    }
+}
+
+void WordModel::addLength(int length)
+{
+    for (int i = lengthsFrequencies.size(); i < length; i++)
+    {
+        lengthsFrequencies.emplace_back(0);
+    }
+
+    lengthsFrequencies.at(length - 1)++;
+}
+
+std::string WordModel::aggregateWordGen(std::string begin)
+{
+    size_t sizeOfStr = utf8_length(begin);
+
+    return begin;
+}
 
 bool wordIn(const std::string &word, const std::vector<std::string> &list)
 {
@@ -221,22 +222,11 @@ int main(int argc, char const *argv[])
     while (std::getline(infile, line))
     {
         lines++;
-        printf("Str=%s : len=%ld, size=%ld, utf8=%ld | ", line.c_str(), line.length(), line.size(), utf8_length(line));
+        // printf("Str=%s : len=%ld, size=%ld, utf8=%ld | ", line.c_str(), line.length(), line.size(), utf8_length(line));
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
-        printf("Slen=%ld, size=%ld, utf8=%ld\n", line.length(), line.size(), utf8_length(line));
+        // printf("len=%ld, size=%ld, utf8=%ld >>> ", line.length(), line.size(), utf8_length(line));
         std::string cleaned = deleteChar(line, 13);
-        bool alpha = true;
-        for (long unsigned int i = 0; i < cleaned.length(); i++)
-        {
-            // if (!isalpha(cleaned[i]))
-            if (cleaned[i] < 'a' || cleaned[i] > 'z')
-            {
-                alpha = false;
-                break;
-            }
-        }
-        if (!alpha)
-            continue;
+        // printf("len=%ld, size=%ld, utf8=%ld\n", cleaned.length(), cleaned.size(), utf8_length(cleaned));
     }
     printf("Stats generated.\nStarting words generation...\n");
     std::vector<std::string> foundWords(0);
