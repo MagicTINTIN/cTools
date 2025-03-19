@@ -4,10 +4,19 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <random>
 
 #define DEFAULT_CONTEXT 3
 #define MAX_GENERATION_TRIES 500
 
+int randint(int min, int max)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<> dis(min, max);
+    return dis(gen);
+}
 
 size_t utf8_length(const std::string &str)
 {
@@ -126,7 +135,7 @@ class WordModel
 {
 private:
     std::vector<size_t> lengthsFrequencies;
-    std::vector<std::map<std::string, std::map<std::string, int>>> maps;
+    std::vector<std::map<std::string, std::map<std::string, size_t>>> maps;
     unsigned int contextSize;
 
 public:
@@ -161,7 +170,7 @@ void WordModel::addStr(std::string ctx, std::string c)
     }
     else
     {
-        maps.at(sizeOfStr).insert(std::make_pair(ctx, std::map<std::string, int>()));
+        maps.at(sizeOfStr).insert(std::make_pair(ctx, std::map<std::string, size_t>()));
         maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
     }
 }
@@ -179,8 +188,35 @@ void WordModel::addLength(int length)
 std::string WordModel::aggregateWordGen(std::string begin)
 {
     size_t sizeOfStr = utf8_length(begin);
+    std::string ctxSearch;
+    int ctxSize = contextSize - 1;
+    if (sizeOfStr < contextSize)
+    {
+        ctxSearch = " " + ctxSearch;
+        ctxSize = sizeOfStr;
+    }
+    else
+        ctxSearch = begin.substr(0, sizeOfStr--);
+    if (!maps.at(ctxSize).count(ctxSearch) || maps.at(ctxSize)[ctxSearch].empty())
+        return begin + "\n";
 
-    return begin;
+    size_t sum(0);
+    for (auto it = maps.at(ctxSize)[ctxSearch].begin(); it != maps.at(ctxSize)[ctxSearch].end(); ++it)
+    {
+        // std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+        sum += it->second;
+    }
+
+    size_t indexCharChosen = randint(0, sum - 1);
+    for (auto it = maps.at(ctxSize)[ctxSearch].begin(); it != maps.at(ctxSize)[ctxSearch].end(); ++it)
+    {
+        // std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+        if (indexCharChosen < it->second)
+            return begin + it->first;
+        indexCharChosen -= it->second;
+    }
+
+    return begin + "\n";
 }
 
 bool wordIn(const std::string &word, const std::vector<std::string> &list)
@@ -227,20 +263,19 @@ int main(int argc, char const *argv[])
         // printf("len=%ld, size=%ld, utf8=%ld >>> ", line.length(), line.size(), utf8_length(line));
         std::string cleaned = deleteChar(line, 13) + "\n";
         // printf("len=%ld, size=%ld, utf8=%ld\n", cleaned.length(), cleaned.size(), utf8_length(cleaned));
-        int length = utf8_length(cleaned);
+        size_t length = utf8_length(cleaned);
         model.addLength(length);
         for (size_t lastc = 0; lastc < length; lastc++)
         {
             std::string ctx("");
             for (size_t i = 0; i < lastc - 1; i++)
             {
-                ctx+=utf8_char_at(line, i);
+                ctx += utf8_char_at(line, i);
             }
             model.addStr(ctx, utf8_char_at(line, lastc));
         }
-        
     }
-    printf("Stats generated.\nStarting words generation...\n");
+    printf("Stats generated.\nStart generating words...\n");
     std::vector<std::string> foundWords(0);
     int maxTries = 0;
     for (size_t i = 0; i < generatedNumber; i++)
