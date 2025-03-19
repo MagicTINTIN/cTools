@@ -109,6 +109,13 @@ std::string utf8_char_at(const std::string &str, size_t n)
     return "";
 }
 
+std::string utf8_char_at(const std::string &str, size_t n, std::string defaultVal) {
+    std::string ret = utf8_char_at(str, n);
+    if (ret.empty())
+        return defaultVal;
+    return ret;
+}
+
 std::string replaceChar(std::string s, char c1, char c2)
 {
     for (long unsigned int i = 0; i < s.length(); i++)
@@ -211,7 +218,7 @@ std::string WordModel::aggregateWordGen(std::string begin)
     for (auto it = maps.at(ctxSize)[ctxSearch].begin(); it != maps.at(ctxSize)[ctxSearch].end(); ++it)
     {
         std::string current = it->first;
-        if (current.at(0) == 'r')
+        if (current.compare("r") == 0)
             printf("wtf\n");
         // std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
         if (indexCharChosen < it->second)
@@ -275,11 +282,14 @@ int main(int argc, char const *argv[])
         for (size_t lastc = 0; lastc < length; lastc++)
         {
             std::string ctx("");
-            for (size_t i = 0; i < lastc - 1 && lastc > 0; i++)
+            for (size_t i = std::max(0,(int) lastc - contextSize); i < lastc && lastc > 0; i++)
             {
                 ctx += utf8_char_at(line, i);
             }
-            model.addStr(ctx, utf8_char_at(line, lastc));
+            std::string charToPut = utf8_char_at(line, lastc, "\n");
+            if (ctx.empty()/* && utf8_char_at(line, lastc).compare("r") == 0*/)
+                printf("mais what ???\n");
+            model.addStr(ctx, charToPut);
         }
     }
     printf("\rStats generated.\nStart generating words...\n");
@@ -288,7 +298,7 @@ int main(int argc, char const *argv[])
     for (size_t i = 0; i < generatedNumber; i++)
     {
         std::string newWord = "";
-        while (newWord.back() != '\n')
+        while (newWord.empty() || newWord.back() != '\n')
         {
             newWord = model.aggregateWordGen(newWord);
         }
