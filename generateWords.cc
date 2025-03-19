@@ -18,6 +18,7 @@ public:
     ~WordModel();
     void addStr(std::string str, std::string c);
     void addLength(int length);
+    std::string aggregateWordGen(std::string begin);
 };
 
 WordModel::WordModel(int contextSize) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize)
@@ -57,6 +58,13 @@ void WordModel::addLength(int length)
     }
 
     lengthsFrequencies.at(length - 1)++;
+}
+
+std::string WordModel::aggregateWordGen(std::string begin)
+{
+    size_t sizeOfStr = utf8_length(begin);
+
+    return begin;
 }
 
 size_t utf8_length(const std::string &str)
@@ -173,6 +181,16 @@ std::string deleteChar(std::string s, char c1)
     return ret;
 }
 
+bool wordIn(const std::string &word, const std::vector<std::string> &list)
+{
+    for (size_t i = 0; i < list.size(); i++)
+    {
+        if (list.at(i).compare(word) == 0)
+            return true;
+    }
+    return false;
+}
+
 int main(int argc, char const *argv[])
 {
     // std::cout << std::string("être").length() << std::endl;
@@ -188,12 +206,15 @@ int main(int argc, char const *argv[])
     {
         contextSize = atoi(argv[4]);
     }
+
+    WordModel model(contextSize);
+
     std::ifstream infile(argv[1]);
     std::ofstream outfile(argv[2]);
 
     std::string line;
 
-    long unsigned int maxAllowed = atoi(argv[3]);
+    long unsigned int generatedNumber = atoi(argv[3]);
 
     unsigned int lines(0);
     while (std::getline(infile, line))
@@ -216,8 +237,21 @@ int main(int argc, char const *argv[])
         if (!alpha)
             continue;
     }
-    printf("Stats read.\n");
-    if (maxAllowed == 0 || contextSize == 2)
-        printf("\n");
+    printf("Stats generated.\nStarting words generation...\n");
+    std::vector<std::string> foundWords(0);
+    for (size_t i = 0; i < generatedNumber; i++)
+    {
+        std::string newWord = "";
+        while (newWord.back() != '\n')
+        {
+            newWord = model.aggregateWordGen(newWord);
+        }
+        if (wordIn(newWord, foundWords))
+            i--;
+        else {
+            std::cout << newWord;
+        }
+    }
+
     return 0;
 }
