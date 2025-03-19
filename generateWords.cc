@@ -6,6 +6,7 @@
 #include <map>
 
 #define DEFAULT_CONTEXT 3
+#define MAX_GENERATION_TRIES 500
 class WordModel
 {
 private:
@@ -239,6 +240,7 @@ int main(int argc, char const *argv[])
     }
     printf("Stats generated.\nStarting words generation...\n");
     std::vector<std::string> foundWords(0);
+    int maxTries = 0;
     for (size_t i = 0; i < generatedNumber; i++)
     {
         std::string newWord = "";
@@ -247,8 +249,13 @@ int main(int argc, char const *argv[])
             newWord = model.aggregateWordGen(newWord);
         }
         if (wordIn(newWord, foundWords))
-            i--;
-        else {
+        {
+            maxTries++;
+            if (maxTries < MAX_GENERATION_TRIES)
+                i--;
+        }
+        else
+        {
             std::cout << newWord;
         }
     }
