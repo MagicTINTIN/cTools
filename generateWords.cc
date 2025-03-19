@@ -3,14 +3,14 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
+#include <map>
 
 #define DEFAULT_CONTEXT 3
 class WordModel
 {
 private:
     std::vector<size_t> lengthsFrequencies;
-    std::vector<std::unordered_map<std::string, std::unordered_map<std::string, int>>> maps;
+    std::vector<std::map<std::string, std::map<std::string, int>>> maps;
     int contextSize;
 
 public:
@@ -44,7 +44,7 @@ void WordModel::addStr(std::string ctx, std::string c)
     }
     else
     {
-        maps.at(sizeOfStr).insert(std::make_pair(ctx, 1));
+        maps.at(sizeOfStr).insert(std::make_pair(ctx, std::map<std::string, int>()));
         maps.at(sizeOfStr)[ctx].insert(std::make_pair(c, 1));
     }
 }
