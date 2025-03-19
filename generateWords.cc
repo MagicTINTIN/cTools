@@ -199,7 +199,7 @@ std::string WordModel::aggregateWordGen(std::string begin)
     int ctxSize = contextSize - 1;
     if (sizeOfStr < contextSize)
     {
-        ctxSearch = " " + ctxSearch;
+        ctxSearch = " " + begin;
         ctxSize = sizeOfStr;
     }
     else
@@ -218,8 +218,6 @@ std::string WordModel::aggregateWordGen(std::string begin)
     for (auto it = maps.at(ctxSize)[ctxSearch].begin(); it != maps.at(ctxSize)[ctxSearch].end(); ++it)
     {
         std::string current = it->first;
-        if (current.compare("r") == 0)
-            printf("wtf\n");
         // std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
         if (indexCharChosen < it->second)
             return begin + it->first;
@@ -287,8 +285,6 @@ int main(int argc, char const *argv[])
                 ctx += utf8_char_at(line, i);
             }
             std::string charToPut = utf8_char_at(line, lastc, "\n");
-            if (ctx.empty()/* && utf8_char_at(line, lastc).compare("r") == 0*/)
-                printf("mais what ???\n");
             model.addStr(ctx, charToPut);
         }
     }
