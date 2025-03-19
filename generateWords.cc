@@ -210,6 +210,9 @@ std::string WordModel::aggregateWordGen(std::string begin)
     size_t indexCharChosen = randint(0, sum - 1);
     for (auto it = maps.at(ctxSize)[ctxSearch].begin(); it != maps.at(ctxSize)[ctxSearch].end(); ++it)
     {
+        std::string current = it->first;
+        if (current.at(0) == 'r')
+            printf("wtf\n");
         // std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
         if (indexCharChosen < it->second)
             return begin + it->first;
@@ -297,7 +300,7 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            std::cout << newWord;
+            std::cout << "size: " << utf8_length(newWord) << ", " << newWord;
         }
     }
 
