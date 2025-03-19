@@ -225,8 +225,20 @@ int main(int argc, char const *argv[])
         // printf("Str=%s : len=%ld, size=%ld, utf8=%ld | ", line.c_str(), line.length(), line.size(), utf8_length(line));
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
         // printf("len=%ld, size=%ld, utf8=%ld >>> ", line.length(), line.size(), utf8_length(line));
-        std::string cleaned = deleteChar(line, 13);
+        std::string cleaned = deleteChar(line, 13) + "\n";
         // printf("len=%ld, size=%ld, utf8=%ld\n", cleaned.length(), cleaned.size(), utf8_length(cleaned));
+        int length = utf8_length(cleaned);
+        model.addLength(length);
+        for (size_t lastc = 0; lastc < length; lastc++)
+        {
+            std::string ctx("");
+            for (size_t i = 0; i < lastc - 1; i++)
+            {
+                ctx+=utf8_char_at(line, i);
+            }
+            model.addStr(ctx, utf8_char_at(line, lastc));
+        }
+        
     }
     printf("Stats generated.\nStarting words generation...\n");
     std::vector<std::string> foundWords(0);
