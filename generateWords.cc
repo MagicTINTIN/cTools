@@ -296,7 +296,7 @@ int main(int argc, char const *argv[])
             model.addStr(ctx, charToPut);
         }
     }
-    printf("\rStats generated.\nStart generating words...\n");
+    printf("\rStats generated.\nStart generating words...\n###########################################\n");
     std::vector<std::string> foundWords(0);
     int maxTries = 0;
     for (size_t i = 0; i < generatedNumber; i++)
@@ -314,7 +314,10 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            std::cout << "size: " << utf8_length(newWord) << ", " << newWord;
+            foundWords.emplace_back(newWord);
+            std::cout << newWord;
+            // outfile << newWord;
+            // std::cout << "size: " << utf8_length(newWord) << ", " << newWord;
         }
     }
 
