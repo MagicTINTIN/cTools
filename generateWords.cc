@@ -7,7 +7,7 @@
 #include <random>
 
 #define DEFAULT_CONTEXT 3
-#define END_CHANCE_RATIO_PERCENTAGE 0.7
+#define DEFAULT_END_CHANCE_RATIO_PERCENTAGE 0.7
 #define MAX_GENERATION_TRIES 500
 
 int randint(int min, int max)
@@ -147,16 +147,17 @@ private:
     std::vector<std::map<std::string, std::map<std::string, size_t>>> maps;
     unsigned int contextSize;
     size_t totalWordsLearned;
+    float end_ratio;
 
 public:
-    WordModel(int contextSize);
+    WordModel(int contextSize, float endRatio);
     ~WordModel();
     void addStr(std::string str, std::string c);
     void addLength(int length);
     std::string aggregateWordGen(std::string begin);
 };
 
-WordModel::WordModel(int contextSize) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize)
+WordModel::WordModel(int contextSize, float endRatio) : lengthsFrequencies(20), maps(contextSize), contextSize(contextSize), end_ratio(endRatio)
 {
 }
 
@@ -171,7 +172,7 @@ void WordModel::addStr(std::string ctx, std::string c)
         ctx = " " + ctx;
     else
         sizeOfStr--;
-    if (maps.at(0).count(ctx))
+    if (maps.at(sizeOfStr).count(ctx))
     {
         if (maps.at(sizeOfStr)[ctx].count(c))
             maps.at(sizeOfStr)[ctx][c]++;
@@ -233,7 +234,7 @@ std::string WordModel::aggregateWordGen(std::string begin)
     {
         numberOfBiggerWords += lengthsFrequencies[indSumIndex];
     }
-    float ratioPhase = END_CHANCE_RATIO_PERCENTAGE * (totalWordsLearned - numberOfBiggerWords) / totalWordsLearned;
+    float ratioPhase = end_ratio * (totalWordsLearned - numberOfBiggerWords) / totalWordsLearned;
     float EOLMultiplierFactor = numberOfEOL == 0 ? 0 : (ratioPhase * sum) / ((1 - ratioPhase) * numberOfEOL);
     sum += EOLMultiplierFactor * numberOfEOL;
 
@@ -276,19 +277,25 @@ int main(int argc, char const *argv[])
 {
     // std::cout << std::string("être").length() << std::endl;
     // return 1;
-    if (argc != 4 && argc != 5)
+    if (argc != 4 && argc != 5 && argc != 6)
     {
-        std::cerr << argv[0] << " takes 3 params (filepath in/out & number of words generated) [context_size]\n";
+        std::cerr << argv[0] << " takes 3 params (filepath in/out & number of words generated) [context_size] [end_ratio]\n";
         return 1;
     }
 
     int contextSize = DEFAULT_CONTEXT;
-    if (argc == 5)
+    if (argc >= 5)
     {
         contextSize = atoi(argv[4]);
     }
 
-    WordModel model(contextSize);
+    float end_ratio = DEFAULT_END_CHANCE_RATIO_PERCENTAGE;
+    if (argc >= 6)
+    {
+        end_ratio = atof(argv[5]);
+    }
+
+    WordModel model(contextSize, end_ratio);
 
     std::ifstream infile(argv[1]);
     std::ofstream outfile(argv[2]);
